@@ -10,14 +10,75 @@ app.use(express.static('public'));
 app.use('/phaser', express.static('node_modules/phaser/dist'));
 
 const players = {};
+const enemies = {};
+let nextEnemyId = 1;
+
 const MAX_HP = 100;
 const ATTACK_RANGE = 90;
 const ATTACK_DAMAGE = 20;
 const ATTACK_COOLDOWN = 400;
 
+const ENEMY_COUNT = 3;
+const ENEMY_HP = 60;
+const ENEMY_SPEED = 70;
+const ENEMY_DAMAGE = 10;
+const ENEMY_COOLDOWN = 1000;
+const ENEMY_TOUCH = 35;
+
 function randomSpot() {
   return { x: 100 + Math.random() * 600, y: 100 + Math.random() * 400 };
 }
+
+function spawnEnemy() {
+  const id = 'e' + nextEnemyId++;
+  enemies[id] = { ...randomSpot(), hp: ENEMY_HP, lastHit: 0 };
+}
+
+for (let i = 0; i < ENEMY_COUNT; i++) spawnEnemy();
+
+function damagePlayer(id, amount) {
+  const t = players[id];
+  if (!t) return;
+  t.hp -= amount;
+  if (t.hp <= 0) {
+    Object.assign(t, randomSpot());
+    t.hp = MAX_HP;
+    io.emit('playerRespawn', { id, x: t.x, y: t.y, hp: t.hp });
+  } else {
+    io.emit('hpUpdate', { id, hp: t.hp });
+  }
+}
+
+setInterval(() => {
+  const dt = 0.05;
+  const now = Date.now();
+  const ids = Object.keys(players);
+
+  for (const eid in enemies) {
+    const e = enemies[eid];
+    if (!ids.length) continue;
+
+    let nearestId = null;
+    let nearestDist = Infinity;
+    for (const pid of ids) {
+      const d = Math.hypot(players[pid].x - e.x, players[pid].y - e.y);
+      if (d < nearestDist) { nearestDist = d; nearestId = pid; }
+    }
+
+    if (nearestDist > ENEMY_TOUCH) {
+      const p = players[nearestId];
+      e.x += ((p.x - e.x) / nearestDist) * ENEMY_SPEED * dt;
+      e.y += ((p.y - e.y) / nearestDist) * ENEMY_SPEED * dt;
+    } else if (now - e.lastHit >= ENEMY_COOLDOWN) {
+      e.lastHit = now;
+      damagePlayer(nearestId, ENEMY_DAMAGE);
+    }
+  }
+
+  io.emit('enemies', Object.entries(enemies).map(([id, e]) => ({
+    id, x: Math.round(e.x), y: Math.round(e.y), hp: e.hp,
+  })));
+}, 50);
 
 io.on('connection', (socket) => {
   players[socket.id] = {
@@ -51,14 +112,17 @@ io.on('connection', (socket) => {
       if (id === socket.id) continue;
       const target = players[id];
       const dist = Math.hypot(target.x - me.x, target.y - me.y);
+      if (dist <= ATTACK_RANGE) damagePlayer(id, ATTACK_DAMAGE);
+    }
+
+    for (const eid in enemies) {
+      const e = enemies[eid];
+      const dist = Math.hypot(e.x - me.x, e.y - me.y);
       if (dist <= ATTACK_RANGE) {
-        target.hp -= ATTACK_DAMAGE;
-        if (target.hp <= 0) {
-          Object.assign(target, randomSpot());
-          target.hp = MAX_HP;
-          io.emit('playerRespawn', { id, x: target.x, y: target.y, hp: target.hp });
-        } else {
-          io.emit('hpUpdate', { id, hp: target.hp });
+        e.hp -= ATTACK_DAMAGE;
+        if (e.hp <= 0) {
+          delete enemies[eid];
+          setTimeout(spawnEnemy, 3000);
         }
       }
     }

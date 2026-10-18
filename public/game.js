@@ -1,5 +1,6 @@
 const socket = io({ autoConnect: false });
 const others = {};
+const enemyObjs = {};
 
 class MainScene extends Phaser.Scene {
   create() {
@@ -41,6 +42,20 @@ class MainScene extends Phaser.Scene {
         onComplete: () => ring.destroy(),
       });
     });
+    socket.on('enemies', (list) => {
+      const seen = {};
+      for (const en of list) {
+        seen[en.id] = true;
+        if (!enemyObjs[en.id]) {
+          enemyObjs[en.id] = this.add.rectangle(en.x, en.y, 36, 36, 0xff4444);
+        }
+        enemyObjs[en.id].setPosition(en.x, en.y);
+        enemyObjs[en.id].hp = en.hp;
+      }
+      for (const id in enemyObjs) {
+        if (!seen[id]) { enemyObjs[id].destroy(); delete enemyObjs[id]; }
+      }
+    });
 
     socket.connect();
   }
@@ -55,11 +70,11 @@ class MainScene extends Phaser.Scene {
     return r;
   }
 
-  drawBar(e) {
+  drawBar(e, max) {
     this.bars.fillStyle(0x550000);
     this.bars.fillRect(e.x - 20, e.y - 35, 40, 6);
     this.bars.fillStyle(0x33dd33);
-    this.bars.fillRect(e.x - 20, e.y - 35, 40 * Math.max(e.hp, 0) / 100, 6);
+    this.bars.fillRect(e.x - 20, e.y - 35, 40 * Math.max(e.hp, 0) / max, 6);
   }
 
   update(time, delta) {
@@ -81,8 +96,9 @@ class MainScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.space)) socket.emit('attack');
 
     this.bars.clear();
-    this.drawBar(this.me);
-    for (const id in others) this.drawBar(others[id]);
+    this.drawBar(this.me, 100);
+    for (const id in others) this.drawBar(others[id], 100);
+    for (const id in enemyObjs) this.drawBar(enemyObjs[id], 60);
   }
 }
 

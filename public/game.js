@@ -1,4 +1,6 @@
-const socket = io({ autoConnect: false });
+let myName = (prompt('Choose your player name (max 12 letters):') || '').trim().slice(0, 12);
+
+const socket = io({ autoConnect: false, auth: { name: myName } });
 const others = {};
 const enemyObjs = {};
 
@@ -23,7 +25,11 @@ class MainScene extends Phaser.Scene {
       if (others[p.id]) others[p.id].setPosition(p.x, p.y);
     });
     socket.on('playerLeft', (id) => {
-      if (others[id]) { others[id].destroy(); delete others[id]; }
+      if (others[id]) {
+        others[id].label.destroy();
+        others[id].destroy();
+        delete others[id];
+      }
     });
     socket.on('hpUpdate', (d) => {
       const e = this.getEntity(d.id);
@@ -56,6 +62,20 @@ class MainScene extends Phaser.Scene {
         if (!seen[id]) { enemyObjs[id].destroy(); delete enemyObjs[id]; }
       }
     });
+    socket.on('scoreboard', (list) => {
+      const box = document.getElementById('scoreboard');
+      if (!box) return;
+      box.textContent = '';
+      const title = document.createElement('div');
+      title.style.fontWeight = 'bold';
+      title.textContent = 'Scoreboard';
+      box.appendChild(title);
+      list.forEach((row, i) => {
+        const line = document.createElement('div');
+        line.textContent = (i + 1) + '. ' + row.name + ' - ' + row.score;
+        box.appendChild(line);
+      });
+    });
 
     socket.connect();
   }
@@ -67,6 +87,9 @@ class MainScene extends Phaser.Scene {
   addPlayer(p) {
     const r = this.add.rectangle(p.x, p.y, 40, 40, p.color);
     r.hp = p.hp;
+    r.label = this.add.text(p.x, p.y - 50, p.name, {
+      fontSize: '13px', color: '#ffffff',
+    }).setOrigin(0.5);
     return r;
   }
 
@@ -86,6 +109,7 @@ class MainScene extends Phaser.Scene {
     if (this.cursors.right.isDown || this.wasd.D.isDown) dx += 1;
     if (this.cursors.up.isDown || this.wasd.W.isDown) dy -= 1;
     if (this.cursors.down.isDown || this.wasd.S.isDown) dy += 1;
+    if (window.touchDir) { dx += window.touchDir.x; dy += window.touchDir.y; }
 
     if (dx || dy) {
       this.me.x = Phaser.Math.Clamp(this.me.x + dx * speed, 20, 780);
@@ -97,7 +121,11 @@ class MainScene extends Phaser.Scene {
 
     this.bars.clear();
     this.drawBar(this.me, 100);
-    for (const id in others) this.drawBar(others[id], 100);
+    this.me.label.setPosition(this.me.x, this.me.y - 50);
+    for (const id in others) {
+      this.drawBar(others[id], 100);
+      others[id].label.setPosition(others[id].x, others[id].y - 50);
+    }
     for (const id in enemyObjs) this.drawBar(enemyObjs[id], 60);
   }
 }

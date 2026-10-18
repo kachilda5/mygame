@@ -89,6 +89,7 @@ io.on('connection', (socket) => {
   };
 
   socket.emit('currentPlayers', players);
+  require('./chat')(io, socket, players);
   socket.broadcast.emit('newPlayer', { id: socket.id, ...players[socket.id] });
 
   socket.on('move', (pos) => {

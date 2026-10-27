@@ -5,7 +5,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   if (chat) { chat.style.top = '10px'; chat.style.bottom = 'auto'; }
 
   const base = document.createElement('div');
-  base.style.cssText = 'position:fixed;left:30px;bottom:30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.35);touch-action:none;';
+  base.style.cssText = 'position:fixed;left:30px;bottom:30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.35);touch-action:none;z-index:6;';
   const knob = document.createElement('div');
   knob.style.cssText = 'position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.5);';
   base.appendChild(knob);
@@ -52,7 +52,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 
   const btn = document.createElement('div');
   btn.textContent = 'ATTACK';
-  btn.style.cssText = 'position:fixed;right:30px;bottom:40px;width:100px;height:100px;border-radius:50%;background:rgba(220,60,60,.6);border:2px solid rgba(255,255,255,.5);color:#fff;font:bold 14px sans-serif;display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none;';
+  btn.style.cssText = 'position:fixed;right:30px;bottom:40px;width:100px;height:100px;border-radius:50%;background:rgba(220,60,60,.6);border:2px solid rgba(255,255,255,.5);color:#fff;font:bold 14px sans-serif;display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none;z-index:6;';
   btn.addEventListener('touchstart', (e) => {
     e.preventDefault();
     socket.emit('attack');

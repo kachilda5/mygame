@@ -23,3 +23,19 @@ chatInput.addEventListener('keydown', (e) => {
   }
 });
 chatInput.addEventListener('keyup', (e) => e.stopPropagation());
+
+(function () {
+  const phrases = ['Monster behind you!', 'Attack together!', 'Need help!', 'Gather here!', 'Watch out!', 'Nice one!'];
+  const row = document.createElement('div');
+  row.id = 'quick-chat';
+  row.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;';
+  phrases.forEach((text) => {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    btn.style.cssText = 'background:rgba(40,44,62,.85);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:4px 8px;font:12px sans-serif;cursor:pointer;';
+    btn.addEventListener('click', () => { socket.emit('chat', text); btn.blur(); });
+    row.appendChild(btn);
+  });
+  const chat = document.getElementById('chat');
+  if (chat) chat.insertBefore(row, chat.firstChild);
+})();

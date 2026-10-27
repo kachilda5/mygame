@@ -5,12 +5,54 @@ const others = {};
 const enemyObjs = {};
 
 class MainScene extends Phaser.Scene {
+  preload() {
+    const g = this.make.graphics({ x: 0, y: 0, add: false });
+
+    g.fillStyle(0xffffff);
+    g.fillRoundedRect(2, 2, 36, 36, 12);
+    g.fillStyle(0x000000);
+    g.fillCircle(14, 16, 4);
+    g.fillCircle(26, 16, 4);
+    g.fillRect(14, 27, 12, 3);
+    g.generateTexture('player', 40, 40);
+    g.clear();
+
+    g.fillStyle(0xaa2bd6);
+    g.fillCircle(22, 26, 16);
+    g.fillTriangle(10, 14, 13, 2, 19, 12);
+    g.fillTriangle(18, 10, 22, 0, 26, 10);
+    g.fillTriangle(25, 12, 31, 2, 34, 14);
+    g.fillStyle(0xffffff);
+    g.fillCircle(16, 25, 5);
+    g.fillCircle(28, 25, 5);
+    g.fillStyle(0x000000);
+    g.fillCircle(16, 26, 2);
+    g.fillCircle(28, 26, 2);
+    g.lineStyle(3, 0x000000);
+    g.lineBetween(9, 17, 19, 21);
+    g.lineBetween(35, 17, 25, 21);
+    g.generateTexture('enemy', 44, 44);
+    g.clear();
+
+    g.fillStyle(0x2f6b3a);
+    g.fillRect(0, 0, 64, 64);
+    g.fillStyle(0x3a7d46);
+    g.fillRect(6, 8, 10, 6);
+    g.fillRect(38, 20, 12, 6);
+    g.fillRect(18, 44, 10, 6);
+    g.fillRect(50, 52, 8, 5);
+    g.generateTexture('grass', 64, 64);
+    g.destroy();
+  }
+
   create() {
+    this.add.tileSprite(400, 300, 800, 600, 'grass');
+
     this.me = null;
     this.cursors = this.input.keyboard.createCursorKeys();
     this.wasd = this.input.keyboard.addKeys('W,A,S,D');
     this.space = this.input.keyboard.addKey('SPACE');
-    this.bars = this.add.graphics();
+    this.bars = this.add.graphics().setDepth(10);
 
     this.input.on('pointerdown', () => socket.emit('attack'));
 
@@ -53,7 +95,7 @@ class MainScene extends Phaser.Scene {
       for (const en of list) {
         seen[en.id] = true;
         if (!enemyObjs[en.id]) {
-          enemyObjs[en.id] = this.add.rectangle(en.x, en.y, 36, 36, 0xff4444);
+          enemyObjs[en.id] = this.add.image(en.x, en.y, 'enemy');
         }
         enemyObjs[en.id].setPosition(en.x, en.y);
         enemyObjs[en.id].hp = en.hp;
@@ -85,11 +127,11 @@ class MainScene extends Phaser.Scene {
   }
 
   addPlayer(p) {
-    const r = this.add.rectangle(p.x, p.y, 40, 40, p.color);
+    const r = this.add.image(p.x, p.y, 'player').setTint(p.color);
     r.hp = p.hp;
     r.label = this.add.text(p.x, p.y - 50, p.name, {
-      fontSize: '13px', color: '#ffffff',
-    }).setOrigin(0.5);
+      fontSize: '13px', color: '#ffffff', stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(11);
     return r;
   }
 

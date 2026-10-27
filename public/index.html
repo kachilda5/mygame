@@ -4,18 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My Game</title>
-  <style>body { margin: 0; background: #111; }</style>
+  <style>body { margin: 0; background: #0a0d14; }</style>
+  <script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script>
 </head>
 <body>
-  <div id="scoreboard" style="position:fixed;top:10px;right:10px;min-width:150px;background:rgba(0,0,0,.45);color:#fff;font:14px sans-serif;padding:8px;border-radius:6px;"></div>
-  <div id="chat" style="position:fixed;left:10px;bottom:10px;width:300px;max-width:70vw;font:14px sans-serif;color:#fff;">
-    <div id="chat-log" style="max-height:140px;overflow-y:auto;background:rgba(0,0,0,.45);padding:6px;border-radius:6px 6px 0 0;"></div>
+  <div id="scoreboard" style="position:fixed;top:10px;right:10px;min-width:150px;background:rgba(0,0,0,.55);color:#fff;font:14px sans-serif;padding:8px;border-radius:6px;z-index:5;"></div>
+  <div id="chat" style="position:fixed;left:10px;bottom:10px;width:300px;max-width:70vw;font:14px sans-serif;color:#fff;z-index:5;">
+    <div id="chat-log" style="max-height:140px;overflow-y:auto;background:rgba(0,0,0,.55);padding:6px;border-radius:6px 6px 0 0;"></div>
     <input id="chat-input" maxlength="120" placeholder="Click here to chat, Enter to send" autocomplete="off" style="width:100%;box-sizing:border-box;padding:8px;border:0;border-radius:0 0 6px 6px;background:#2a2d3e;color:#fff;font:14px sans-serif;">
   </div>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/phaser/phaser.min.js"></script>
-  <script src="game.js"></script>
+  <script src="net.js"></script>
+  <script src="stage.js"></script>
   <script src="chat.js"></script>
-  <script src="touch.js"></script>
+  <script src="touchpad.js"></script>
+  <script src="mobileui.js"></script>
+  <script type="module" src="game3d.js"></script>
 </body>
 </html>

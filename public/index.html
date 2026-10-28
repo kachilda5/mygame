@@ -6,6 +6,13 @@
   <title>My Game</title>
   <style>body { margin: 0; background: #0a0d14; }</style>
   <script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a1020">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Frostwatch">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
   <div id="scoreboard" style="position:fixed;top:10px;right:10px;min-width:150px;background:rgba(0,0,0,.55);color:#fff;font:14px sans-serif;padding:8px;border-radius:6px;z-index:5;"></div>
@@ -20,5 +27,6 @@
   <script src="touchpad.js"></script>
   <script src="mobileui.js"></script>
   <script type="module" src="game3d.js"></script>
+  <script>if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js'); });</script>
 </body>
 </html>

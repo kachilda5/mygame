@@ -10,6 +10,8 @@ const io = new Server(server);
 app.use(express.static('public'));
 app.use('/phaser', express.static('node_modules/phaser/dist'));
 app.use('/three', express.static('node_modules/three/build'));
+app.use('/vendor/react', express.static('node_modules/react/umd'));
+app.use('/vendor/react-dom', express.static('node_modules/react-dom/umd'));
 
 const players = {};
 const enemies = {};

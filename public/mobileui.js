@@ -30,6 +30,8 @@
   chatBtn.appendChild(badge);
   const drawer = mk('', 'position:fixed;top:56px;right:8px;width:236px;max-height:70vh;overflow:auto;z-index:16;background:rgba(10,14,24,.94);border:1px solid #3a4258;border-radius:12px;padding:8px;display:none;');
 
+  menuBtn.id = 'm-menu';
+  drawer.id = 'm-drawer';
   menuBtn.addEventListener('click', () => {
     drawer.style.display = drawer.style.display === 'none' ? 'block' : 'none';
   });
@@ -73,7 +75,7 @@
     drawer.appendChild(el);
   }
 
-  const MENU_TOPS = ['170px', '355px', '385px', '415px', '445px', '475px'];
+  const MENU_TOPS = ['170px', '355px', '385px', '415px', '445px', '475px', '505px'];
   function sweep() {
     const kids = Array.from(document.body.children);
     for (const el of kids) {
